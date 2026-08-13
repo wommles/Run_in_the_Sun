@@ -1,3 +1,22 @@
+export interface WalkingProfileWeightings {
+  green?: number;           // 0-1, prefer routes through green areas
+  quiet?: number;           // 0-1, prefer quiet routes (low noise)
+  shadow?: number;          // 0-1, prefer shaded routes
+  steepness_difficulty?: number; // 0-3, steepness difficulty level (0=novice, 3=pro)
+}
+
+export interface RouteOptions {
+  round_trip?: {
+    length: number;
+    points: number;
+    seed?: number;
+  };
+  profile_params?: {
+    weightings?: WalkingProfileWeightings;
+    [key: string]: any; // Allow other profile-specific parameters
+  };
+}
+
 export interface ORSDirectionsResponse {
     bbox: number[];
     routes: ORSRoute[];
@@ -110,26 +129,51 @@ export interface ORSDirectionsResponse {
     osm_date?: string;
   }
 
-  export enum SurfaceType {
-    Unknown = 0,
-    Paved = 1,
-    Unpaved = 2,
-    Asphalt = 3,
-    Concrete = 4,
-    Cobblestone = 5,
-    Metal = 6,
-    Wood = 7,
-    CompactedGravel = 8,
-    FineGravel = 9,
-    Gravel = 10,
-    Dirt = 11,
-    Ground = 12,
-    Ice = 13,
-    PavingStones = 14,
-    Sand = 15,
-    Woodchips = 16,
-    Grass = 17,
-    GrassPaver = 18
-  }
+  export const SurfaceType = {
+    Unknown: 0,
+    Paved: 1,
+    Unpaved: 2,
+    Asphalt: 3,
+    Concrete: 4,
+    Cobblestone: 5,
+    Metal: 6,
+    Wood: 7,
+    CompactedGravel: 8,
+    FineGravel: 9,
+    Gravel: 10,
+    Dirt: 11,
+    Ground: 12,
+    Ice: 13,
+    PavingStones: 14,
+    Sand: 15,
+    Woodchips: 16,
+    Grass: 17,
+    GrassPaver: 18
+  } as const;
+
+  // Create reverse lookup array for efficient label conversion
+  export const SurfaceTypeLabels = [
+    "Unknown",        // 0
+    "Paved",          // 1
+    "Unpaved",        // 2
+    "Asphalt",        // 3
+    "Concrete",       // 4
+    "Cobblestone",    // 5
+    "Metal",          // 6
+    "Wood",           // 7
+    "Compacted Gravel", // 8
+    "Fine Gravel",    // 9
+    "Gravel",         // 10
+    "Dirt",           // 11
+    "Ground",         // 12
+    "Ice",            // 13
+    "Paving Stones",  // 14
+    "Sand",           // 15
+    "Woodchips",      // 16
+    "Grass",          // 17
+    "Grass Paver"     // 18
+  ] as const;
+
+  export type SurfaceTypeValue = typeof SurfaceType[keyof typeof SurfaceType];
   
   

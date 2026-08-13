@@ -1,0 +1,132 @@
+﻿OPENROUTESERVICE API DOCUMENTATION
+==================================================
+
+API INFO:
+Title: Openrouteservice
+Description: This is the openrouteservice API documentation for ORS Core-Version 8.0.0. Documentations for [older Core-Versions](https://github.com/GIScience/openrouteservice-docs/releases) can be rendered with the [Swagger-Editor](https://editor-next.swagger.io/).
+Version: v2
+Core Version: 8.0.0
+
+SERVERS:
+- URL: https://api.openrouteservice.org
+  Description: Openrouteservice API
+- URL: http://localhost:{port}{basePath}
+  Description: Development Server
+
+AVAILABLE SERVICES:
+- Snapping Service: Snap coordinates to the graph edges.
+- Status service: Get information on the status of the api
+- Directions Service: Get directions for different modes of transport
+- Export Service: Export the base graph for different modes of transport
+- Health service: Get information on the health of the api
+- Isochrones Service: Obtain areas of reachability from given locations
+- Matrix Service: Obtain one-to-many, many-to-one and many-to-many matrices for time and distance
+
+API ENDPOINTS:
+==============================
+
+PATH: /v2/snap/{profile}
+  METHOD: POST
+  Summary: Snapping Service
+  Description: Returns a list of points snapped to the nearest edge in the graph. In case an appropriate
+snapping point cannot be found within the specified search radius, "null" is returned.
+
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/snap/{profile}/json
+  METHOD: POST
+  Summary: Snapping Service JSON
+  Description: Returns a list of points snapped to the nearest edge in the graph. In case an appropriate
+snapping point cannot be found within the specified search radius, "null" is returned.
+
+  Parameters:
+    - profile (path): Specifies the profile.
+
+PATH: /v2/snap/{profile}/geojson
+  METHOD: POST
+  Summary: Snapping Service GeoJSON
+  Description: Returns a GeoJSON FeatureCollection of points snapped to the nearest edge in the graph.
+In case an appropriate snapping point cannot be found within the specified search radius,
+it is omitted from the features array. The features provide the 'source_id' property, to match
+the results with the input location array (IDs start at 0).
+
+  Parameters:
+    - profile (path): Specifies the profile.
+
+PATH: /v2/matrix/{profile}
+  METHOD: POST
+  Summary: Matrix Service
+  Description: Returns duration or distance matrix for multiple source and destination points.
+By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value canâ€™t be determined.
+  Parameters:
+    - profile (path): Specifies the matrix profile.
+
+PATH: /v2/isochrones/{profile}
+  METHOD: POST
+  Summary: Isochrones Service
+  Description: The Isochrone Service supports time and distance analyses for one single or multiple locations.
+You may also specify the isochrone interval or provide multiple exact isochrone range values.
+This service allows the same range of profile options as the /directions endpoint,
+which help you to further customize your request to obtain a more detailed reachability area response.
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/export/{profile}
+  METHOD: POST
+  Summary: Export Service
+  Description: Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/export/{profile}/json
+  METHOD: POST
+  Summary: Export Service JSON
+  Description: Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.
+  Parameters:
+    - profile (path): Specifies the profile.
+
+PATH: /v2/directions/{profile}
+  METHOD: GET
+  Summary: Directions Service
+  Description: Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.
+  Parameters:
+    - profile (path): Specifies the route profile.
+    - start (query): Start coordinate of the route in `longitude,latitude` format.
+    - end (query): Destination coordinate of the route in `longitude,latitude` format.
+  METHOD: POST
+  Summary: Directions Service
+  Description: Returns a route between two or more locations for a selected profile and its settings as JSON
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/directions/{profile}/json
+  METHOD: POST
+  Summary: Directions Service JSON
+  Description: Returns a route between two or more locations for a selected profile and its settings as JSON
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/directions/{profile}/gpx
+  METHOD: POST
+  Summary: Directions Service GPX
+  Description: Returns a route between two or more locations for a selected profile and its settings as GPX. The schema can be found [here](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v1/ors-gpx.xsd)
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/directions/{profile}/geojson
+  METHOD: POST
+  Summary: Directions Service GeoJSON
+  Description: Returns a route between two or more locations for a selected profile and its settings as GeoJSON
+  Parameters:
+    - profile (path): Specifies the route profile.
+
+PATH: /v2/status
+  METHOD: GET
+  Summary: 
+  Description: 
+
+PATH: /v2/health
+  METHOD: GET
+  Summary: 
+  Description: 
