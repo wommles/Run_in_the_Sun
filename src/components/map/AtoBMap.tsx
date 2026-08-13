@@ -3,7 +3,6 @@ import { useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import { getRoute } from "../../api/getRoute"
 import { getStartEndPoints, parseORSRoute } from "../../parseORSRoute"
-import { RouteInfo } from "../RouteInfo"
 import MapDisplay, { type MapMarker } from "./MapDisplay"
 import type { ORSDirectionsResponse } from "../../types/directions"
 
@@ -20,7 +19,6 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
   const [end, setEnd] = useState<LatLng | null>(null)
   const [userLocation, setUserLocation] = useState<LatLng | null>(null)
   const [routes, setRoutes] = useState<L.LatLng[][]>()
-  const [directionData, setDirectionData] = useState<ORSDirectionsResponse>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Request user location
@@ -39,7 +37,6 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
   const handleReset = () => {
     setStart(null)
     setEnd(null)
-    setDirectionData(undefined)
     setRoutes(undefined)
     onRouteData?.(undefined)
   }
@@ -50,7 +47,6 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
       try {
         const data = await getRoute("foot-walking", start, end)
         console.log("ORS A-to-B result:", data)
-        setDirectionData(data)
         onRouteData?.(data)
         
         const parsedRoutes = parseORSRoute(data)
@@ -93,7 +89,7 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
         
         // Clear previous route when selecting new points
         setRoutes(undefined)
-        setDirectionData(undefined)
+        onRouteData?.(undefined)
       },
     })
 

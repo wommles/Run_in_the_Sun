@@ -3,7 +3,6 @@ import { useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import { getRoundTripRoute } from "../../api/getRoundTripRoute"
 import { parseORSRoute } from "../../parseORSRoute"
-import { RouteInfo } from "../RouteInfo"
 import MapDisplay, { type MapMarker } from "./MapDisplay"
 import type { ORSDirectionsResponse } from "../../types/directions"
 
@@ -19,7 +18,6 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
   const [selectedPoint, setSelectedPoint] = useState<LatLng | null>(null)
   const [userLocation, setUserLocation] = useState<LatLng | null>(null)
   const [routes, setRoutes] = useState<L.LatLng[][]>()
-  const [directionData, setDirectionData] = useState<ORSDirectionsResponse>()
   const [routeLength, setRouteLength] = useState<number>(5) // Default 5km
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [profile, setProfile] = useState<string>("foot-walking")
@@ -39,7 +37,6 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
   // Reset selection
   const handleReset = () => {
     setSelectedPoint(null)
-    setDirectionData(undefined)
     setRoutes(undefined)
     onRouteData?.(undefined)
   }
@@ -50,7 +47,6 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
       try {
         const data = await getRoundTripRoute(profile, selectedPoint, routeLength)
         console.log("ORS round trip result:", data)
-        setDirectionData(data)
         onRouteData?.(data)
         
         // Parse and display route
@@ -76,7 +72,7 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
         setSelectedPoint(pos)
         // Clear previous route when selecting new point
         setRoutes(undefined)
-        setDirectionData(undefined)
+        onRouteData?.(undefined)
       },
     })
 
