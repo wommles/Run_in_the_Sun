@@ -1,13 +1,11 @@
 // RouteInfo.tsx
-import React from "react"
-import { SurfaceType, type ORSDirectionsResponse } from "../types/directions"
-import { RouteExtrasPie } from "./RouteExtrasPie"
+import type { ORSDirectionsResponse } from "../types/directions"
 import { SurfacesPie } from "./RouteExtrasPie/SurfacesPie"
 
 export const RouteInfo = ({
   directions,
 }: {
-  directions: ORSDirectionsResponse
+  directions: ORSDirectionsResponse | undefined
 }) => {
   if (!directions || !directions.routes || directions.routes.length === 0) {
     return <div>No route data available.</div>

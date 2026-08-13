@@ -1,0 +1,28 @@
+# Project Rules for Cursor AI
+
+## Project Context
+This project works with the OpenRouteService (ORS) API for routing and navigation services.
+
+## Always Include These Files in Context:
+- ORS-API.LLM.txt: Complete OpenRouteService API documentation
+- docs/ORS-API.LLM.txt: Backup location for API docs
+
+## OpenRouteService API Reference
+When working with routing, navigation, or OpenRouteService-related tasks:
+1. ALWAYS reference the ORS-API.LLM.txt file first
+2. Use exact endpoint paths and parameter names from the documentation
+3. Validate all API suggestions against the documented schemas
+4. Reference specific sections like "Directions Service", "Matrix Service", etc.
+
+## Key ORS Services Available:
+- Directions Service: Route planning between waypoints
+- Matrix Service: Distance/duration matrices
+- Isochrones Service: Reachability analysis  
+- Snapping Service: Snap coordinates to road network
+- Export Service: Graph data export
+
+## Instructions for AI:
+- Always read ORS-API.LLM.txt when questions involve routing/navigation
+- Provide exact API endpoint URLs and request/response examples
+- Reference the specific ORS profile types (driving-car, foot-walking, etc.)
+- Include proper error handling based on documented response codes

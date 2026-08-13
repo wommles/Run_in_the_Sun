@@ -1,69 +1,11 @@
-# React + TypeScript + Vite
+# Run in the Sun - RITS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Status: Alpha**
 
-Currently, two official plugins are available:
+RITS is a web app for planning and exploring running routes. It helps runners sketch out where they want to go, compare options on a map, and understand what a route will feel like before they head out.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Plan routes in two ways. **Point-to-point** routing lets you pick a start and finish on the map and generate a path between them. **Round trip** routing lets you choose a starting point and target distance to build a loop that returns where you began. When a route is created, a side panel shows analysis of the path, including distance, duration, elevation-related details, and a breakdown of surface types along the way.
 
-## Expanding the ESLint configuration
+The frontend is built with React, TypeScript, and Vite. Maps use Leaflet. Routing and route metadata come from the [OpenRouteService](https://openrouteservice.org/) Directions API. Run `npm install` and `npm run dev` to start locally. Set `VITE_ORS_BASE_URL` in `.env` to your directions endpoint.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+This project is in active development. Features, UI, and data presentation may change.

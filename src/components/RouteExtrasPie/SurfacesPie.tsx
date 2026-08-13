@@ -1,8 +1,7 @@
 // RouteExtrasPie.tsx
-import React from "react"
 import { Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
-import { SurfaceType, type RouteExtraSummary } from "../../types/directions" // your extras types
+import { SurfaceTypeLabels, type RouteExtraSummary } from "../../types/directions"
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -11,9 +10,7 @@ export const SurfacesPie = ({
 }: {
   summaries: RouteExtraSummary[]
 }) => {
-  // Example: pick surface summary
-
-  const labels = summaries.map((s) => SurfaceType[s.value])
+  const labels = summaries.map((s) => SurfaceTypeLabels[s.value] || `Unknown Surface (${s.value})`)
   const dataValues = summaries.map((s) => s.distance) // could also use s.amount
 
   const data = {
