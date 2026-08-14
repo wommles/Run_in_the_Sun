@@ -27,7 +27,7 @@ export interface ORSDirectionsResponse {
     summary: ORSSummary;
     segments: ORSSegment[];
     bbox: number[];
-    geometry: string; // encoded polyline
+    geometry: string | { type: string; coordinates: number[][] }
     way_points: number[];
     warnings?: ORSWarning[];
     extras?: RouteExtras
@@ -175,5 +175,4 @@ export interface ORSDirectionsResponse {
   ] as const;
 
   export type SurfaceTypeValue = typeof SurfaceType[keyof typeof SurfaceType];
-  
   

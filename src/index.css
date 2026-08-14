@@ -1,0 +1,29 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.map-with-drawer .leaflet-bottom {
+  bottom: 128px;
+}
+
+.route-drawer {
+  animation: route-drawer-up 0.35s ease;
+}
+
+@keyframes route-drawer-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

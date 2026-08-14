@@ -2,6 +2,8 @@
 import { Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { SurfaceTypeLabels, type RouteExtraSummary } from "../../types/directions"
+import { useBasemap } from "../map/BasemapContext"
+import { getSurfaceColor } from "../map/surfacePalettes"
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -10,6 +12,7 @@ export const SurfacesPie = ({
 }: {
   summaries: RouteExtraSummary[]
 }) => {
+  const { selectedName } = useBasemap()
   const labels = summaries.map((s) => SurfaceTypeLabels[s.value] || `Unknown Surface (${s.value})`)
   const dataValues = summaries.map((s) => s.distance) // could also use s.amount
 
@@ -19,26 +22,7 @@ export const SurfacesPie = ({
       {
         label: "Surface Distribution (meters)",
         data: dataValues,
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#C9CBCF",
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#C9CBCF",
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-        ],
+        backgroundColor: summaries.map((s) => getSurfaceColor(s.value, selectedName)),
         borderWidth: 1,
       },
     ],
