@@ -2,8 +2,9 @@ import { useState, useEffect } from "react"
 import { useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import { getRoundTripRoute } from "../../api/getRoundTripRoute"
-import { parseORSRoute } from "../../parseORSRoute"
+import { parseORSRoute, parseORSRouteSurfaceSegments, getRouteDrawerStats } from "../../parseORSRoute"
 import MapDisplay, { type MapMarker } from "./MapDisplay"
+import type { RouteSurfaceSegment, RouteDrawerStats } from "../../parseORSRoute"
 import type { ORSDirectionsResponse } from "../../types/directions"
 
 // Leaflet icon will be handled by MapDisplay
@@ -18,6 +19,8 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
   const [selectedPoint, setSelectedPoint] = useState<LatLng | null>(null)
   const [userLocation, setUserLocation] = useState<LatLng | null>(null)
   const [routes, setRoutes] = useState<L.LatLng[][]>()
+  const [routeSegments, setRouteSegments] = useState<RouteSurfaceSegment[]>()
+  const [routeStats, setRouteStats] = useState<RouteDrawerStats>()
   const [routeLength, setRouteLength] = useState<number>(5) // Default 5km
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [profile, setProfile] = useState<string>("foot-walking")
@@ -38,14 +41,17 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
   const handleReset = () => {
     setSelectedPoint(null)
     setRoutes(undefined)
+    setRouteSegments(undefined)
+    setRouteStats(undefined)
     onRouteData?.(undefined)
   }
 
-  const handleSearch = async () => {
-    if (selectedPoint && routeLength > 0) {
+  const handleSearch = async (lengthKm = routeLength) => {
+    if (selectedPoint && lengthKm > 0) {
+      setRouteLength(lengthKm)
       setIsLoading(true)
       try {
-        const data = await getRoundTripRoute(profile, selectedPoint, routeLength)
+        const data = await getRoundTripRoute(profile, selectedPoint, lengthKm)
         console.log("ORS round trip result:", data)
         onRouteData?.(data)
         
@@ -54,6 +60,8 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
         if (parsedRoutes) {
           setRoutes(parsedRoutes)
         }
+        setRouteSegments(parseORSRouteSurfaceSegments(data))
+        setRouteStats(getRouteDrawerStats(data))
       } catch (err) {
         console.error("Round trip route error:", err)
         alert(`Failed to get round trip route: ${err instanceof Error ? err.message : 'Unknown error'}`)
@@ -72,6 +80,8 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
         setSelectedPoint(pos)
         // Clear previous route when selecting new point
         setRoutes(undefined)
+        setRouteSegments(undefined)
+        setRouteStats(undefined)
         onRouteData?.(undefined)
       },
     })
@@ -88,6 +98,11 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
       <MapDisplay
         userLocation={userLocation}
         routes={routes}
+        routeSegments={routeSegments}
+        routeStats={routeStats}
+        isRefreshing={isLoading}
+        onRefresh={routeStats ? () => { void handleSearch() } : undefined}
+        onDistanceChange={routeStats ? (lengthKm) => { void handleSearch(lengthKm) } : undefined}
         markers={markers}
       >
         <PointSelector />
@@ -160,7 +175,7 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
             Reset
           </button>
           <button 
-            onClick={handleSearch}
+            onClick={() => { void handleSearch() }}
             disabled={isLoading || !selectedPoint}
             style={{
               backgroundColor: isLoading ? "#ccc" : "#007bff",

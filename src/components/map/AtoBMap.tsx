@@ -2,8 +2,9 @@ import { useState, useEffect } from "react"
 import { useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import { getRoute } from "../../api/getRoute"
-import { getStartEndPoints, parseORSRoute } from "../../parseORSRoute"
+import { getStartEndPoints, parseORSRoute, parseORSRouteSurfaceSegments, getRouteDrawerStats } from "../../parseORSRoute"
 import MapDisplay, { type MapMarker } from "./MapDisplay"
+import type { RouteSurfaceSegment, RouteDrawerStats } from "../../parseORSRoute"
 import type { ORSDirectionsResponse } from "../../types/directions"
 
 // Leaflet icon will be handled by MapDisplay
@@ -19,6 +20,8 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
   const [end, setEnd] = useState<LatLng | null>(null)
   const [userLocation, setUserLocation] = useState<LatLng | null>(null)
   const [routes, setRoutes] = useState<L.LatLng[][]>()
+  const [routeSegments, setRouteSegments] = useState<RouteSurfaceSegment[]>()
+  const [routeStats, setRouteStats] = useState<RouteDrawerStats>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Request user location
@@ -38,6 +41,8 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
     setStart(null)
     setEnd(null)
     setRoutes(undefined)
+    setRouteSegments(undefined)
+    setRouteStats(undefined)
     onRouteData?.(undefined)
   }
 
@@ -51,6 +56,8 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
         
         const parsedRoutes = parseORSRoute(data)
         if (parsedRoutes) setRoutes(parsedRoutes)
+        setRouteSegments(parseORSRouteSurfaceSegments(data))
+        setRouteStats(getRouteDrawerStats(data))
         
         const points = getStartEndPoints(data)
         if (points) {
@@ -89,6 +96,8 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
         
         // Clear previous route when selecting new points
         setRoutes(undefined)
+        setRouteSegments(undefined)
+        setRouteStats(undefined)
         onRouteData?.(undefined)
       },
     })
@@ -106,6 +115,8 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
       <MapDisplay
         userLocation={userLocation}
         routes={routes}
+        routeSegments={routeSegments}
+        routeStats={routeStats}
         markers={markers}
       >
         <LocationSelector setStart={setStart} setEnd={setEnd} />

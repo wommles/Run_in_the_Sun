@@ -3,6 +3,7 @@ import type { ORSDirectionsResponse, RouteOptions } from "../types/directions";
 export type LatLng = [number, number];
 
 const ORS_BASE_URL = import.meta.env.VITE_ORS_BASE_URL;
+const ORS_API_KEY = import.meta.env.VITE_ORS_API_KEY;
 
 export async function getRoute(
   profile: string,
@@ -14,7 +15,7 @@ export async function getRoute(
     ? [[start[1], start[0]]]
     : [[start[1], start[0]], [end![1], end![0]]];
 
-  const extraInfo = ["waycategory", "surface", "steepness", "traildifficulty", "suitability", "green", "noise", "shadow"];
+  const extraInfo = ["waycategory", "surface", "steepness", "traildifficulty", "suitability", "green", "noise" /* , "shadow" */];
 
   let body: any;
 
@@ -22,6 +23,7 @@ export async function getRoute(
     body = {
       coordinates,
       extra_info: extraInfo,
+      elevation: true,
       options: { 
         round_trip: options.round_trip,
         ...(options.profile_params && { profile_params: options.profile_params })
@@ -32,16 +34,24 @@ export async function getRoute(
     body = {
       coordinates,
       extra_info: extraInfo,
+      elevation: true,
       ...(options?.profile_params && { options: { profile_params: options.profile_params } })
     };
     console.log("A-to-B request body:", JSON.stringify(body, null, 2));
   }
 
+  const headers: Record<string, string> = {
+    Accept: "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
+    "Content-Type": "application/json",
+  };
+
+  if (ORS_API_KEY) {
+    headers.Authorization = ORS_API_KEY;
+  }
+
   const response = await fetch(`${ORS_BASE_URL}/${profile}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(body),
   });
 

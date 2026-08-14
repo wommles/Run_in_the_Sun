@@ -26,7 +26,7 @@ export async function getRoundTripRoute(
         weightings: {
           green: 0.8,   // Strongly prefer green areas
           quiet: 0.6,   // Moderately prefer quiet routes
-          shadow: 0.4   // Slightly prefer shaded routes
+          // shadow: 0.4   // Slightly prefer shaded routes (not supported by ORS)
         }
       }
     })
