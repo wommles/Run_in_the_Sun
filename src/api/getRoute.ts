@@ -1,8 +1,8 @@
 import type { ORSDirectionsResponse, RouteOptions } from "../types/directions";
+import { ORS_BASE_URL } from "./orsConstants";
 
 export type LatLng = [number, number];
 
-const ORS_BASE_URL = import.meta.env.VITE_ORS_BASE_URL;
 const ORS_API_KEY = import.meta.env.VITE_ORS_API_KEY;
 
 export async function getRoute(
