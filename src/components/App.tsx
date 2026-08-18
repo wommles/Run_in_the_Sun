@@ -1,10 +1,15 @@
-import { useState, type CSSProperties } from "react"
+import { useEffect, useState, type CSSProperties } from "react"
 import MapDropdownContainer from "./MapDropdownContainer"
 import FullScreenMap from "./map/FullScreenMap"
 import { BASEMAPS } from "./map/basemaps"
 import { BasemapProvider, useBasemap } from "./map/BasemapContext"
 
 const DEV_MODE_KEY = "rits-dev-mode"
+const DEV_QUERY_EVENT = "rits:locationchange"
+
+function hasDevQuery(): boolean {
+  return new URLSearchParams(window.location.search).get("mode") === "dev"
+}
 
 function readDevMode(): boolean {
   try {
@@ -12,6 +17,38 @@ function readDevMode(): boolean {
   } catch {
     return false
   }
+}
+
+function useDevQueryAccess() {
+  const [allowed, setAllowed] = useState(hasDevQuery)
+
+  useEffect(() => {
+    const sync = () => setAllowed(hasDevQuery())
+
+    window.addEventListener("popstate", sync)
+    window.addEventListener(DEV_QUERY_EVENT, sync)
+
+    const historyMethods = ["pushState", "replaceState"] as const
+    const originals = historyMethods.map((method) => {
+      const original = history[method]
+      history[method] = function (...args: Parameters<History["pushState"]>) {
+        const result = original.apply(this, args)
+        window.dispatchEvent(new Event(DEV_QUERY_EVENT))
+        return result
+      }
+      return { method, original }
+    })
+
+    return () => {
+      window.removeEventListener("popstate", sync)
+      window.removeEventListener(DEV_QUERY_EVENT, sync)
+      for (const { method, original } of originals) {
+        history[method] = original
+      }
+    }
+  }, [])
+
+  return allowed
 }
 
 const overlayCardStyle: CSSProperties = {
@@ -107,6 +144,8 @@ function BasemapRadio() {
 
 export default function App() {
   const [devMode, setDevMode] = useState(readDevMode)
+  const showDevToggle = useDevQueryAccess()
+  const isDevView = showDevToggle && devMode
 
   const toggleDevMode = () => {
     setDevMode((prev) => {
@@ -122,7 +161,7 @@ export default function App() {
 
   return (
     <BasemapProvider>
-      <div style={{ height: "100%", overflow: devMode ? "auto" : "hidden" }}>
+      <div style={{ height: "100%", overflow: isDevView ? "auto" : "hidden" }}>
         <div
           style={{
             position: "fixed",
@@ -135,10 +174,12 @@ export default function App() {
             gap: "8px",
           }}
         >
-          <DevModeToggle enabled={devMode} onToggle={toggleDevMode} />
+          {showDevToggle && (
+            <DevModeToggle enabled={devMode} onToggle={toggleDevMode} />
+          )}
           <BasemapRadio />
         </div>
-        {devMode ? <MapDropdownContainer /> : <FullScreenMap />}
+        {isDevView ? <MapDropdownContainer /> : <FullScreenMap />}
       </div>
     </BasemapProvider>
   )

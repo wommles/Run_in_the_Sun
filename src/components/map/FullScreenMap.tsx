@@ -5,6 +5,10 @@ import L from "leaflet"
 import MapDisplay, { type MapMarker } from "./MapDisplay"
 import { getRoundTripRoute } from "../../api/getRoundTripRoute"
 import {
+  DEFAULT_ROUTE_PREFERENCES,
+  type RoutePreferences,
+} from "../../api/orsConstants"
+import {
   parseORSRoute,
   parseORSRouteSurfaceSegments,
   getRouteDrawerStats,
@@ -31,7 +35,7 @@ function MapViewController({
   useEffect(() => {
     const points = routes?.flat() ?? []
     if (points.length > 0) {
-      map.fitBounds(L.latLngBounds(points), { padding: [40, 40], paddingBottomRight: [40, 160] })
+      map.fitBounds(L.latLngBounds(points), { padding: [40, 40], paddingBottomRight: [40, 200] })
     } else {
       map.setView(position, map.getZoom())
     }
@@ -181,8 +185,15 @@ export default function FullScreenMap() {
   const [routeSegments, setRouteSegments] = useState<RouteSurfaceSegment[]>()
   const [routeStats, setRouteStats] = useState<RouteDrawerStats>()
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [preferences, setPreferences] = useState<RoutePreferences>(DEFAULT_ROUTE_PREFERENCES)
   const requestIdRef = useRef(0)
   const lengthRef = useRef(DEFAULT_ROUTE_KM)
+  const preferencesRef = useRef(preferences)
+
+  const updatePreferences = (next: RoutePreferences) => {
+    preferencesRef.current = next
+    setPreferences(next)
+  }
 
   const loadRoute = useCallback(async (startPoint: LatLng, lengthKm: number) => {
     const requestId = ++requestIdRef.current
@@ -191,7 +202,8 @@ export default function FullScreenMap() {
       const data = await getRoundTripRoute(
         DEFAULT_PROFILE,
         startPoint,
-        lengthKm
+        lengthKm,
+        preferencesRef.current
       )
       if (requestId !== requestIdRef.current) return
       setRoutes(parseORSRoute(data))
@@ -250,6 +262,8 @@ export default function FullScreenMap() {
       isRefreshing={isRefreshing}
       onRefresh={handleRefresh}
       onDistanceChange={handleDistanceChange}
+      preferences={preferences}
+      onPreferencesChange={updatePreferences}
       markers={markers}
       containerStyle={{
         height: "100%",

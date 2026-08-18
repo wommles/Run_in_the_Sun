@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react"
 import type { RouteDrawerStats } from "../../parseORSRoute"
+import { DEFAULT_ROUTE_PREFERENCES, type RoutePreferences } from "../../api/orsConstants"
 
-const DRAWER_HEIGHT_PX = 128
+const DRAWER_HEIGHT_PX = 176
+const SETTINGS_DRAWER_HEIGHT_PX = 112
 
 const statLabelStyle: CSSProperties = {
   fontSize: "11px",
@@ -76,6 +78,71 @@ function RefreshIcon() {
         fill="currentColor"
       />
     </svg>
+  )
+}
+
+function CogIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.77 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.89 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.55 1.63-.94l2.39.96c.24.1.51 0 .64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+const actionButtonStyle: CSSProperties = {
+  ...iconButtonStyle,
+  width: "40px",
+  height: "40px",
+  background: "#f8f9fa",
+  border: "1px solid #dee2e6",
+}
+
+function PreferenceSlider({
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string
+  value: number
+  disabled?: boolean
+  onChange: (value: number) => void
+}) {
+  const sliderValue = Number.isFinite(value) ? value : 0
+
+  return (
+    <label
+      style={{
+        display: "grid",
+        gridTemplateColumns: "7.5rem 1fr 2.4rem",
+        alignItems: "center",
+        gap: "10px",
+        fontSize: "13px",
+        fontWeight: 600,
+        color: "#495057",
+      }}
+    >
+      <span>{label}</span>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.01}
+        value={sliderValue}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        aria-valuemin={0}
+        aria-valuemax={1}
+        aria-valuenow={sliderValue}
+        style={{ width: "100%", accentColor: "#007bff" }}
+      />
+      <span style={{ fontVariantNumeric: "tabular-nums", textAlign: "right" }}>
+        {sliderValue.toFixed(2)}
+      </span>
+    </label>
   )
 }
 
@@ -206,96 +273,179 @@ function DistanceStat({
   )
 }
 
-export { DRAWER_HEIGHT_PX }
+export { DRAWER_HEIGHT_PX, SETTINGS_DRAWER_HEIGHT_PX }
 
 export default function RouteDrawer({
   stats,
   isRefreshing,
   onRefresh,
   onDistanceChange,
+  preferences,
+  onPreferencesChange,
 }: {
   stats: RouteDrawerStats
   isRefreshing?: boolean
   onRefresh?: () => void
   onDistanceChange?: (lengthKm: number) => void
+  preferences: RoutePreferences
+  onPreferencesChange: (preferences: RoutePreferences) => void
 }) {
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
   return (
     <div
-      className="route-drawer"
+      className={`route-drawer-stack${settingsOpen ? " route-drawer-settings-open" : ""}`}
       style={{
         position: "absolute",
         left: 0,
         right: 0,
         bottom: 0,
         zIndex: 1100,
-        background: "white",
-        borderTopLeftRadius: "16px",
-        borderTopRightRadius: "16px",
-        boxShadow: "0 -4px 20px rgba(0,0,0,0.18)",
-        padding: "10px 16px 16px 20px",
+        display: "flex",
+        flexDirection: "column",
+        pointerEvents: "none",
       }}
     >
+      {settingsOpen && (
+        <div
+          id="route-settings-drawer"
+          className="route-settings-drawer"
+          style={{
+            pointerEvents: "auto",
+            background: "white",
+            borderTopLeftRadius: "16px",
+            borderTopRightRadius: "16px",
+            boxShadow: "0 -4px 20px rgba(0,0,0,0.18)",
+            padding: "12px 20px 14px",
+            marginBottom: "-8px",
+            paddingBottom: "22px",
+            minHeight: SETTINGS_DRAWER_HEIGHT_PX,
+          }}
+        >
+          <div
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              color: "#6c757d",
+              marginBottom: "10px",
+            }}
+          >
+            Route preferences
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <PreferenceSlider
+              label="Green"
+              value={preferences.green ?? DEFAULT_ROUTE_PREFERENCES.green}
+              disabled={isRefreshing}
+              onChange={(green) =>
+                onPreferencesChange({ ...preferences, green })
+              }
+            />
+            <PreferenceSlider
+              label="Quiet roads"
+              value={preferences.quiet ?? DEFAULT_ROUTE_PREFERENCES.quiet}
+              disabled={isRefreshing}
+              onChange={(quiet) =>
+                onPreferencesChange({ ...preferences, quiet })
+              }
+            />
+          </div>
+        </div>
+      )}
       <div
+        className="route-drawer"
         style={{
-          width: "40px",
-          height: "4px",
-          borderRadius: "2px",
-          background: "#ced4da",
-          margin: "0 auto 12px",
-        }}
-      />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
+          pointerEvents: "auto",
+          background: "white",
+          borderTopLeftRadius: settingsOpen ? 0 : "16px",
+          borderTopRightRadius: settingsOpen ? 0 : "16px",
+          boxShadow: settingsOpen ? "none" : "0 -4px 20px rgba(0,0,0,0.18)",
+          padding: "10px 16px 16px 20px",
         }}
       >
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gap: "12px 16px",
-            flex: 1,
-            minWidth: 0,
+            width: "40px",
+            height: "4px",
+            borderRadius: "2px",
+            background: "#ced4da",
+            margin: "0 auto 12px",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
           }}
         >
-          <DistanceStat
-            meters={stats.distanceMeters}
-            disabled={isRefreshing}
-            onCommit={onDistanceChange}
-          />
-          <Stat
-            label="Elevation"
-            value={formatElevation(
-              stats.ascentMeters,
-              stats.descentMeters,
-              stats.isRoundTrip
-            )}
-          />
-          <Stat label="Primary surface" value={stats.primarySurface ?? "—"} />
-          <Stat label="Secondary surface" value={stats.secondarySurface ?? "—"} />
-        </div>
-        {onRefresh && (
-          <button
-            type="button"
-            title="Generate a new route"
-            aria-label="Generate a new route"
-            disabled={isRefreshing}
-            onClick={onRefresh}
+          <div
             style={{
-              ...iconButtonStyle,
-              width: "40px",
-              height: "40px",
-              background: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              opacity: isRefreshing ? 0.6 : 1,
-              cursor: isRefreshing ? "not-allowed" : "pointer",
+              display: "grid",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: "12px 16px",
+              flex: 1,
+              minWidth: 0,
             }}
           >
-            <RefreshIcon />
-          </button>
-        )}
+            <DistanceStat
+              meters={stats.distanceMeters}
+              disabled={isRefreshing}
+              onCommit={onDistanceChange}
+            />
+            <Stat
+              label="Elevation"
+              value={formatElevation(
+                stats.ascentMeters,
+                stats.descentMeters,
+                stats.isRoundTrip
+              )}
+            />
+            <Stat label="Primary surface" value={stats.primarySurface ?? "—"} />
+            <Stat label="Secondary surface" value={stats.secondarySurface ?? "—"} />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              title="Route settings"
+              aria-label="Route settings"
+              aria-expanded={settingsOpen}
+              aria-controls="route-settings-drawer"
+              onClick={() => setSettingsOpen((open) => !open)}
+              style={{
+                ...actionButtonStyle,
+                background: settingsOpen ? "#e9ecef" : "#f8f9fa",
+              }}
+            >
+              <CogIcon />
+            </button>
+            {onRefresh && (
+              <button
+                type="button"
+                title="Generate a new route"
+                aria-label="Generate a new route"
+                disabled={isRefreshing}
+                onClick={onRefresh}
+                style={{
+                  ...actionButtonStyle,
+                  opacity: isRefreshing ? 0.6 : 1,
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                }}
+              >
+                <RefreshIcon />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

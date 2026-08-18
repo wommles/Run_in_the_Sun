@@ -22,7 +22,7 @@ const WATERCOLOR_ATTR =
 const OSM_ATTR =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
-export const DEFAULT_BASEMAP_NAME = "Stamen Terrain"
+export const DEFAULT_BASEMAP_NAME = "Stamen Watercolour"
 
 export const BASEMAPS: Basemap[] = [
   {

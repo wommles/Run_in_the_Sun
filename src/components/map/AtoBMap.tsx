@@ -6,6 +6,11 @@ import { getStartEndPoints, parseORSRoute, parseORSRouteSurfaceSegments, getRout
 import MapDisplay, { type MapMarker } from "./MapDisplay"
 import type { RouteSurfaceSegment, RouteDrawerStats } from "../../parseORSRoute"
 import type { ORSDirectionsResponse } from "../../types/directions"
+import {
+  DEFAULT_ROUTE_PREFERENCES,
+  toProfileParams,
+  type RoutePreferences,
+} from "../../api/orsConstants"
 
 // Leaflet icon will be handled by MapDisplay
 
@@ -23,6 +28,7 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
   const [routeSegments, setRouteSegments] = useState<RouteSurfaceSegment[]>()
   const [routeStats, setRouteStats] = useState<RouteDrawerStats>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [preferences, setPreferences] = useState<RoutePreferences>(DEFAULT_ROUTE_PREFERENCES)
 
   // Request user location
   useEffect(() => {
@@ -50,7 +56,9 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
     if (start && end) {
       setIsLoading(true)
       try {
-        const data = await getRoute("foot-walking", start, end)
+        const data = await getRoute("foot-walking", start, end, {
+          profile_params: toProfileParams(preferences),
+        })
         console.log("ORS A-to-B result:", data)
         onRouteData?.(data)
         
@@ -117,7 +125,11 @@ export default function AtoBMap({ onRouteData }: AtoBMapProps) {
         routes={routes}
         routeSegments={routeSegments}
         routeStats={routeStats}
+        isRefreshing={isLoading}
+        onRefresh={routeStats ? () => { void handleSearch() } : undefined}
         markers={markers}
+        preferences={preferences}
+        onPreferencesChange={setPreferences}
       >
         <LocationSelector setStart={setStart} setEnd={setEnd} />
       </MapDisplay>

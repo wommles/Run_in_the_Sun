@@ -12,11 +12,27 @@ body {
 }
 
 .map-with-drawer .leaflet-bottom {
-  bottom: 128px;
+  bottom: 176px;
+}
+
+.map-with-drawer:has(.route-drawer-settings-open) .leaflet-bottom {
+  bottom: 288px;
+}
+
+.surface-legend.with-drawer {
+  bottom: 200px;
+}
+
+.map-with-drawer:has(.route-drawer-settings-open) .surface-legend.with-drawer {
+  bottom: 312px;
 }
 
 .route-drawer {
   animation: route-drawer-up 0.35s ease;
+}
+
+.route-settings-drawer {
+  animation: route-drawer-up 0.25s ease;
 }
 
 @keyframes route-drawer-up {

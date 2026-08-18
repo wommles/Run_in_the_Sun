@@ -15,8 +15,9 @@ import {
   SURFACE_GROUP_LABELS,
   SURFACE_GROUP_ORDER,
 } from "./surfacePalettes"
-import RouteDrawer, { DRAWER_HEIGHT_PX } from "./RouteDrawer"
+import RouteDrawer from "./RouteDrawer"
 import type { RouteDrawerStats } from "../../parseORSRoute"
+import type { RoutePreferences } from "../../api/orsConstants"
 
 // Default Leaflet marker icon
 const defaultIcon = L.icon({
@@ -39,6 +40,8 @@ interface MapDisplayProps {
   isRefreshing?: boolean
   onRefresh?: () => void
   onDistanceChange?: (lengthKm: number) => void
+  preferences: RoutePreferences
+  onPreferencesChange: (preferences: RoutePreferences) => void
   markers?: MapMarker[]
   children?: React.ReactNode
   center?: LatLng
@@ -73,10 +76,11 @@ function SurfaceLegend({
   return (
     <div
       key={basemapName}
+      className={hasDrawer ? "surface-legend with-drawer" : "surface-legend"}
       style={{
         position: "absolute",
         left: "10px",
-        bottom: `${24 + (hasDrawer ? DRAWER_HEIGHT_PX : 0)}px`,
+        bottom: hasDrawer ? undefined : "24px",
         zIndex: 1000,
         background: "white",
         padding: "8px 10px",
@@ -118,6 +122,8 @@ export default function MapDisplay({
   isRefreshing,
   onRefresh,
   onDistanceChange,
+  preferences,
+  onPreferencesChange,
   markers = [],
   children,
   center,
@@ -201,6 +207,8 @@ export default function MapDisplay({
           isRefreshing={isRefreshing}
           onRefresh={onRefresh}
           onDistanceChange={onDistanceChange}
+          preferences={preferences}
+          onPreferencesChange={onPreferencesChange}
         />
       )}
     </div>

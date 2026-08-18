@@ -6,6 +6,10 @@ import { parseORSRoute, parseORSRouteSurfaceSegments, getRouteDrawerStats } from
 import MapDisplay, { type MapMarker } from "./MapDisplay"
 import type { RouteSurfaceSegment, RouteDrawerStats } from "../../parseORSRoute"
 import type { ORSDirectionsResponse } from "../../types/directions"
+import {
+  DEFAULT_ROUTE_PREFERENCES,
+  type RoutePreferences,
+} from "../../api/orsConstants"
 
 // Leaflet icon will be handled by MapDisplay
 
@@ -24,6 +28,7 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
   const [routeLength, setRouteLength] = useState<number>(5) // Default 5km
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [profile, setProfile] = useState<string>("foot-walking")
+  const [preferences, setPreferences] = useState<RoutePreferences>(DEFAULT_ROUTE_PREFERENCES)
 
   // Request user location
   useEffect(() => {
@@ -51,7 +56,7 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
       setRouteLength(lengthKm)
       setIsLoading(true)
       try {
-        const data = await getRoundTripRoute(profile, selectedPoint, lengthKm)
+        const data = await getRoundTripRoute(profile, selectedPoint, lengthKm, preferences)
         console.log("ORS round trip result:", data)
         onRouteData?.(data)
         
@@ -103,6 +108,8 @@ export default function RoundTripMap({ onRouteData }: RoundTripMapProps) {
         isRefreshing={isLoading}
         onRefresh={routeStats ? () => { void handleSearch() } : undefined}
         onDistanceChange={routeStats ? (lengthKm) => { void handleSearch(lengthKm) } : undefined}
+        preferences={preferences}
+        onPreferencesChange={setPreferences}
         markers={markers}
       >
         <PointSelector />
